@@ -1,0 +1,46 @@
+This script will login to a router and examine the AS paths for your prefixes. If any AS you specified is not advertising one of your prefixes, you'll see a warning.
+
+Here's an example of how to use the script. We're going to make sure that AS64496 and AS64501 are both advertising our prefixes 192.0.2.0/24 and 198.51.100.0/24:
+
+$ ./check_as_paths.py -v -a 64496,64501 -p 192.0.2.0,198.51.100.0
+server: route-views.routeviews.org
+username: rviews
+password: False
+asns: ['64496', '64501']
+prefixes: ['192.0.2.0', '198.51.100.0']
+17 paths to 192.0.2.0 via ASN 64496
+14 paths to 192.0.2.0 via ASN 64501
+17 paths to 198.51.100.0 via ASN 64496
+14 paths to 198.51.100.0 via ASN 64501
+
+All is looking good. Now let's say we added a third prefix, 203.0.113.0/24.
+
+$ ./check_as_paths.py -v -a 64496,64501 -p 192.0.2.0,198.51.100.0,203.0.113.0
+server: route-views.routeviews.org
+username: rviews
+password: False
+asns: ['64496', '64501']
+prefixes: ['192.0.2.0', '198.51.100.0', '203.0.113.0']
+17 paths to 192.0.2.0 via ASN 64496
+14 paths to 192.0.2.0 via ASN 64501
+17 paths to 198.51.100.0 via ASN 64496
+14 paths to 198.51.100.0 via ASN 64501
+17 paths to 203.0.113.0 via ASN 64496
+ *** ALERT ***  0 paths to 203.0.113.0 via ASN 64501
+
+Uh oh! Looks like AS64501 needs to update their filters. However, our other peer AS64496 is advertising this prefix.
+
+I suggest running this as a cron job, in which case you'll want to leave off the '-v' option so that you only get output (and an email from cron) when it detects a problem.
+
+Here's what the previous command would look like without the -v flag:
+
+$ ./check_as_paths.py -a 64496,64501 -p 192.0.2.0,198.51.100.0,203.0.113.0
+ *** ALERT ***  0 paths to 203.0.113.0 via ASN 64501
+
+By default, the script queries route-views.routeviews.org, which can often be slow to respond. The Route Views project runs several servers, each of which receives information from different sources. Try querying a few of them and see what works best for your network.
+
+You can override the default username and password, too. The username and passwords are only used if prompted for, so you can just ignore them if your route server doesn't require them.
+
+$ ./check_as_paths.py -h
+usage: ./check_as_paths.py [-hv] [-s server] [-u username] [-P password]
+          -a  -p 
