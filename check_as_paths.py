@@ -79,7 +79,7 @@ child = pexpect.spawn('telnet %s' % server)
 #child.logfile = logfile
 
 while 1:
-    i = child.expect([pexpect.EOF, pexpect.TIMEOUT, '(?i)username: ', '(?i)password: ', 'Permission denied', 'Connection closed', '>', '#'])
+    i = child.expect([pexpect.EOF, pexpect.TIMEOUT, '(?i)username: ', '(?i)password: ', 'Permission denied', 'Connection closed', '>[ ]*$', '#[ ]*$'])
     if i == 0: # EOF
         print 'ERROR!'
         print 'Got EOF. Here is what the child process said:'
